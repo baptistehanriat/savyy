@@ -8,3 +8,12 @@ export interface Label {
   lastApplied: string
   created: string
 }
+
+export interface Transaction {
+  id: string
+  name: string
+  description?: string
+  amount: number
+  date: string
+  labelIds: string[]
+}

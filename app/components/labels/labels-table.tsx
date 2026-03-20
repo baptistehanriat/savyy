@@ -31,100 +31,45 @@ import {
 } from "~/components/primitives/tooltip"
 import type { Label } from "../data-type"
 import { PageHeader } from "../page-header"
-import { initialLabels } from "./dummy-labels"
 import { cn } from "~/lib/utils"
+import { observer } from "@legendapp/state/react"
+import { store } from "~/state/store"
 
-function EditableCell({
-  value,
-  onSave,
-  placeholder,
-  showPlaceholderOnHover,
-  isHovered,
-}: {
-  value: string
-  onSave: (value: string) => void
-  placeholder?: string
-  showPlaceholderOnHover?: boolean
-  isHovered?: boolean
-}) {
-  const [isEditing, setIsEditing] = React.useState(false)
-  const [editValue, setEditValue] = React.useState(value)
-  const inputRef = React.useRef<HTMLInputElement>(null)
-
-  React.useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [isEditing])
-
-  const handleBlur = () => {
-    setIsEditing(false)
-    if (editValue !== value) {
-      onSave(editValue)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleBlur()
-    } else if (e.key === "Escape") {
-      setEditValue(value)
-      setIsEditing(false)
-    }
-  }
-
-  if (isEditing) {
-    return (
-      <input
-        ref={inputRef}
-        value={editValue}
-        onChange={e => setEditValue(e.target.value)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        className="w-full bg-transparent outline-none border-none focus:ring-0 p-0"
-      />
-    )
-  }
-
-  const showPlaceholder = showPlaceholderOnHover && !value && isHovered
-
-  return (
-    <div onClick={() => setIsEditing(true)} className="cursor-text w-full">
-      {value ||
-        (showPlaceholder ? (
-          <span className="text-muted-foreground">{placeholder}</span>
-        ) : null)}
-    </div>
-  )
-}
-
-export function LabelsTable() {
+export const LabelsTable = observer(function LabelsTable() {
   const [searchQuery, setSearchQuery] = React.useState("")
-  const [labels, setLabels] = React.useState<Label[]>(initialLabels)
+  const labels = store.labels.get()
   const [rowSelection, setRowSelection] = React.useState({})
   const [hoveredRowId, setHoveredRowId] = React.useState<string | null>(null)
   const [focusedRowIndex, setFocusedRowIndex] = React.useState<number>(-1)
   const tableRef = React.useRef<HTMLTableElement>(null)
 
-  const updateLabel = (id: string, field: keyof Label, value: string) => {
-    setLabels(prev =>
-      prev.map(label =>
-        label.id === id ? { ...label, [field]: value } : label
-      )
-    )
+  const updateLabel = (
+    id: string,
+    field: "name" | "description",
+    value: string
+  ) => {
+    const label = store.labels.find(l => l.id.get() === id)
+    if (label) {
+      label[field].set(value)
+    }
   }
 
   const columns: ColumnDef<Label>[] = [
     {
       id: "select",
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={value => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      size: 40,
+      cell: ({ row }) => {
+        const showCheckbox =
+          hoveredRowId === row.original.id || row.getIsSelected()
+        return (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+            aria-label="Select row"
+            className={cn("h-4 w-4 hidden", showCheckbox && "block")}
+          />
+        )
+      },
+      size: 30,
     },
     {
       accessorKey: "name",
@@ -170,7 +115,7 @@ export function LabelsTable() {
           </div>
         )
       },
-      size: 400,
+      size: 900,
     },
     {
       accessorKey: "numberOfTransactions",
@@ -180,7 +125,7 @@ export function LabelsTable() {
           {row.original.numberOfTransactions}
         </div>
       ),
-      size: 120,
+      size: 60,
     },
     {
       accessorKey: "lastApplied",
@@ -188,7 +133,7 @@ export function LabelsTable() {
       cell: ({ row }) => (
         <div className="text-muted-foreground">{row.original.lastApplied}</div>
       ),
-      size: 150,
+      size: 100,
     },
     {
       accessorKey: "created",
@@ -200,27 +145,28 @@ export function LabelsTable() {
             <span className="text-muted-foreground">
               {row.original.created}
             </span>
-            {isHovered && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() =>
-                        console.log("[v0] Delete row:", row.original.id)
-                      }
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Delete label</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-8 w-8 text-muted-foreground hover:text-destructive hidden",
+                      isHovered && "flex"
+                    )}
+                    onClick={() =>
+                      console.log("[v0] Delete row:", row.original.id)
+                    }
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Delete label</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )
       },
@@ -316,7 +262,7 @@ export function LabelsTable() {
         </div>
       </PageHeader>
 
-      <div className="border-y">
+      <div className="border-b">
         <Table ref={tableRef}>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
@@ -329,9 +275,9 @@ export function LabelsTable() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -345,7 +291,7 @@ export function LabelsTable() {
                   data-state={row.getIsSelected() && "selected"}
                   onMouseEnter={() => setHoveredRowId(row.original.id)}
                   onMouseLeave={() => setHoveredRowId(null)}
-                  onClick={() => setFocusedRowIndex(index)}
+                  onClick={() => { }}
                   tabIndex={0}
                   className={cn(
                     "h-14",
@@ -378,6 +324,72 @@ export function LabelsTable() {
           </TableBody>
         </Table>
       </div>
+    </div>
+  )
+})
+
+function EditableCell({
+  value,
+  onSave,
+  placeholder,
+  showPlaceholderOnHover,
+  isHovered,
+}: {
+  value: string
+  onSave: (value: string) => void
+  placeholder?: string
+  showPlaceholderOnHover?: boolean
+  isHovered?: boolean
+}) {
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [editValue, setEditValue] = React.useState(value)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isEditing])
+
+  const handleBlur = () => {
+    setIsEditing(false)
+    if (editValue !== value) {
+      onSave(editValue)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleBlur()
+    } else if (e.key === "Escape") {
+      setEditValue(value)
+      setIsEditing(false)
+    }
+  }
+
+  if (isEditing) {
+    return (
+      <input
+        ref={inputRef}
+        value={editValue}
+        onChange={e => setEditValue(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        className="w-fit bg-backround rounded-sm outline-none p-1 border focus:ring-0"
+      />
+    )
+  }
+
+  const showPlaceholder = showPlaceholderOnHover && !value && isHovered
+
+  return (
+    <div onClick={() => setIsEditing(true)} className="cursor-text w-full">
+      {value ||
+        (showPlaceholder ? (
+          <span className="text-muted-foreground font-normal">
+            {placeholder}
+          </span>
+        ) : null)}
     </div>
   )
 }

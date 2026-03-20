@@ -12,6 +12,7 @@ import {
 import { Nav } from "./nav"
 
 import { UserMenu } from "./user-menu"
+import { PixelLogo } from "./logo"
 
 const data = {
   user: {
@@ -28,13 +29,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
+              {/* <PixelLogo size={4} color="red" gap={2} /> */}
               <a href="#">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="text-lg font-sans font-normal">savyy</span>
                 </div>
               </a>
             </SidebarMenuButton>
