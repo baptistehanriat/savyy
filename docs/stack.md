@@ -4,32 +4,33 @@
 
 | Library | Version | Role | Notes |
 |---|---|---|---|
-| `react` | ^19.1 | UI framework | Concurrent mode, React Compiler ready |
-| `react-dom` | ^19.1 | DOM renderer | |
+| `react` | ^19.2 | UI framework | Concurrent mode, React Compiler ready |
+| `react-dom` | ^19.2 | DOM renderer | |
 | `typescript` | ^5.9 | Type safety | strict mode |
 | `vite` | ^7.x | Bundler + dev server | Fast HMR, SPA mode |
-| `react-router` | ^7.9 | Routing | Client-only SPA mode (no SSR) |
+| `react-router` | ^7.13 | Routing | Client-only SPA mode (no SSR) |
 
 ## Styling & UI
 
 | Library | Version | Role | Notes |
 |---|---|---|---|
-| `tailwindcss` | ^4.x | Utility CSS | CSS-first config (no tailwind.config.js) |
+| `tailwindcss` | ^4.2 | Utility CSS | CSS-first config (no tailwind.config.js) |
 | `shadcn` (CLI) | ^4.x | Component scaffolding | Components live in `app/components/ui/` |
 | `@base-ui/react` | ^1.3 | Unstyled primitives | Used by shadcn under the hood; use directly for complex interactive components |
 | `class-variance-authority` | ^0.7 | Variant styling | Used inside `ui/` components |
 | `tailwind-merge` | ^3.x | Class merging | `cn()` utility |
 | `clsx` | ^2.x | Conditional classes | Part of `cn()` |
-| `lucide-react` | ^0.5xx | Icons | |
+| `lucide-react` | ^1.7 | Icons | |
 | `motion` | ^12.x | Animation | **Not installed yet** — `npm install motion` |
-| `geist` (font) | ^1.5 | Typography | Variable font, already configured |
+| `@fontsource-variable/geist` | ^5.x | Typography | Variable font |
 
 ## State & Data
 
 | Library | Version | Role | Notes |
 |---|---|---|---|
-| `@legendapp/state` | **^3.x beta** | State + persistence + sync | **Currently v2 — must upgrade** |
-| `@tanstack/react-table` | ^8.x | Headless table | Sort, filter, selection, virtualization |
+| `@legendapp/state` | ^3.0.0-beta | State + persistence + sync | Local-first observable store; IndexedDB persistence; Supabase sync in Phase 5 |
+| `@tanstack/react-table` | ^8.x | Headless table | Handles sort, filter, selection state. Headless = we own the DOM, enabling custom keyboard nav and inline editing. **Not installed yet** |
+| `@tanstack/react-virtual` | ^3.x | Row virtualization | Only renders visible rows in the DOM. Without it, 500 transactions = 500 DOM nodes. With it, only ~20 rows exist at any time regardless of dataset size. **Not installed yet** |
 | `@tanstack/react-form` | ^1.x | Form state | **Not installed yet** |
 
 ## Utilities
@@ -38,30 +39,22 @@
 |---|---|---|---|
 | `date-fns` | ^4.x | Date manipulation | **Not installed yet** — `npm install date-fns` |
 | `papaparse` | ^5.x | CSV parsing | **Not installed yet** — `npm install papaparse @types/papaparse` |
-| `uuid` | ^13.x | ID generation | Already installed |
 
 ## Dev Tools
 
 | Library | Version | Role |
 |---|---|---|
-| `prettier` | ^3.x | Code formatting |
-| `@react-router/dev` | ^7.x | React Router CLI |
+| `@react-router/dev` | ^7.13 | React Router CLI + typegen |
 | `@tailwindcss/vite` | ^4.x | Tailwind Vite plugin |
 | `vite-tsconfig-paths` | ^5.x | Path aliases (`~/`) |
 
 ---
 
-## Install commands for missing packages
+## Still to install
 
 ```bash
-# Upgrade Legend State to v3 beta
-npm install @legendapp/state@beta
-
-# New dependencies
 npm install motion date-fns papaparse
-npm install @tanstack/react-form
-
-# Types
+npm install @tanstack/react-table @tanstack/react-virtual @tanstack/react-form
 npm install -D @types/papaparse
 ```
 
@@ -76,6 +69,6 @@ npm install -D @types/papaparse
 | React Query / SWR | Legend State's sync engine replaces this for our use case |
 | Zod | Would add weight; TanStack Form handles validation; TypeScript covers most cases |
 | Radix UI (direct) | shadcn wraps it; use shadcn components instead of raw Radix |
-| framer-motion | Renamed to `motion` — same package |
+| framer-motion | Renamed to `motion` — same package, install as `motion` |
 | IndexedDB (raw) | Legend State's IndexedDB plugin handles this |
-| next.js | SSR is unnecessary for a local-first SPA |
+| Next.js | SSR is unnecessary for a local-first SPA |

@@ -19,12 +19,9 @@ interface Transaction {
 interface Label {
   id: string
   name: string
-  color: string
-  groupId?: string       // optional grouping
-  description?: string
-  numberOfTransactions: number
-  lastApplied: string    // ISO 8601
-  created: string        // ISO 8601
+  color: string          // hex string, e.g. "#6366f1"
+  groupId?: string       // optional grouping (Phase 2)
+  createdAt: string      // ISO 8601
 }
 ```
 
