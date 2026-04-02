@@ -1,0 +1,2 @@
+- smart table: inline editing, keyboard shortcuts, selection, sorting, filtering, bulk actions, inline addition
+- app layout
