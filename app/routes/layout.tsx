@@ -49,13 +49,8 @@ export default function AppLayout() {
       {/* Top-right: user menu */}
       <div className="fixed top-4 right-4 z-50">
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <button
-              className="size-10 rounded-full bg-card border border-border flex items-center justify-center shadow-sm hover:bg-accent transition-colors cursor-pointer"
-              aria-label="User menu"
-            >
-              <MoreHorizontal size={16} className="text-muted-foreground" />
-            </button>
+          <DropdownMenuTrigger className="size-10 rounded-full bg-card border border-border flex items-center justify-center shadow-sm hover:bg-accent transition-colors cursor-pointer">
+            <MoreHorizontal size={16} className="text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem>Profile</DropdownMenuItem>
