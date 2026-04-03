@@ -7,13 +7,22 @@ import {
   type SortingState,
   type RowSelectionState,
 } from "@tanstack/react-table"
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useValue } from "@legendapp/state/react"
 import { ArrowUp, ArrowDown, Plus } from "lucide-react"
 import { labelsStore, addLabel, updateLabel } from "~/store/labels"
 import { Button } from "~/components/ui/button"
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table"
 import { LabelRow } from "./LabelRow"
+import { LabelsActionBar } from "./LabelsActionBar"
 import { useLabelsKeyboard } from "~/lib/use-labels-keyboard"
+import { DEFAULT_LABEL_COLOR } from "~/lib/label-colors"
 import type { Label } from "~/store/labels"
 
 const columnHelper = createColumnHelper<Label>()
@@ -45,6 +54,13 @@ const columns = [
   }),
 ]
 
+const SENTINEL_LABEL: Label = {
+  id: "new",
+  name: "",
+  color: DEFAULT_LABEL_COLOR,
+  createdAt: new Date().toISOString(),
+}
+
 export function LabelsTable() {
   const labels = useValue(labelsStore.items)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
@@ -54,8 +70,21 @@ export function LabelsTable() {
   const [isCreating, setIsCreating] = useState(false)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
+  const tableData = useMemo(
+    () => (isCreating ? [SENTINEL_LABEL, ...labels] : labels),
+    [isCreating, labels]
+  )
+
+  // Auto-start editing the sentinel row when isCreating becomes true
+  useEffect(() => {
+    if (isCreating) {
+      setEditingRowId("new")
+      setFocusedRowIndex(0)
+    }
+  }, [isCreating])
+
   const table = useReactTable({
-    data: labels,
+    data: tableData,
     columns,
     state: { rowSelection, sorting },
     onRowSelectionChange: setRowSelection,
@@ -66,6 +95,7 @@ export function LabelsTable() {
   })
 
   const rowIds = table.getRowModel().rows.map((row) => row.id)
+  const selectedIds = Object.keys(rowSelection)
 
   useLabelsKeyboard({
     rowCount: table.getRowModel().rows.length,
@@ -96,28 +126,28 @@ export function LabelsTable() {
         </Button>
       </div>
 
-      <table className="w-full text-sm">
-        <thead>
+      <Table>
+        <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="border-b">
+            <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th
+                <TableHead
                   key={header.id}
-                  className="px-3 py-2 text-left text-muted-foreground font-normal"
+                  className="text-muted-foreground font-normal"
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
+                </TableHead>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
-        <tbody>
+        </TableHeader>
+        <TableBody>
           {table.getRowModel().rows.length === 0 && !isCreating ? (
-            <tr>
+            <TableRow>
               <td colSpan={2} className="px-3 py-8 text-center text-muted-foreground">
                 No labels yet.
               </td>
-            </tr>
+            </TableRow>
           ) : (
             table.getRowModel().rows.map((row, index) => (
               <LabelRow
@@ -131,15 +161,33 @@ export function LabelsTable() {
                 onFocus={() => setFocusedRowIndex(index)}
                 onEditStart={() => setEditingRowId(row.original.id)}
                 onEditCommit={(name, color) => {
-                  updateLabel(row.original.id, { name, color })
+                  if (row.original.id === "new") {
+                    if (name) addLabel({ name, color })
+                    setIsCreating(false)
+                  } else {
+                    updateLabel(row.original.id, { name, color })
+                  }
                   setEditingRowId(null)
                 }}
-                onEditCancel={() => setEditingRowId(null)}
+                onEditCancel={() => {
+                  setEditingRowId(null)
+                  if (row.original.id === "new") setIsCreating(false)
+                }}
               />
             ))
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
+
+      {selectedIds.length > 0 && (
+        <LabelsActionBar
+          selectedCount={selectedIds.length}
+          selectedIds={selectedIds}
+          isCommandPaletteOpen={isCommandPaletteOpen}
+          onSetCommandPaletteOpen={setIsCommandPaletteOpen}
+          onClearSelection={() => setRowSelection({})}
+        />
+      )}
     </div>
   )
 }

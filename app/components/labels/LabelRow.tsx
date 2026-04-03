@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from "react"
 import { cn } from "~/lib/utils"
 import { Checkbox } from "~/components/ui/checkbox"
+import { TableCell, TableRow } from "~/components/ui/table"
 import { LabelNameCell } from "./LabelNameCell"
 import { LabelColorCell } from "./LabelColorCell"
 import { DEFAULT_LABEL_COLOR } from "~/lib/label-colors"
@@ -90,19 +91,18 @@ export function LabelRow({
   }, [])
 
   return (
-    <tr
+    <TableRow
       className={cn(
-        "group border-b transition-colors",
-        "hover:bg-muted/50",
+        "group",
         isFocused && "ring-1 ring-inset ring-ring",
-        isSelected && "bg-accent",
+        isSelected && "bg-accent hover:bg-accent",
       )}
       onClick={onFocus}
       onFocus={handleRowFocus}
       onBlur={handleRowBlur}
     >
       {/* Name column: checkbox + color dot + name */}
-      <td className="px-3 py-2">
+      <TableCell>
         <div className="flex items-center gap-2">
           <Checkbox
             className={cn(
@@ -131,17 +131,17 @@ export function LabelRow({
             onTabFromName={handleTabFromName}
           />
         </div>
-      </td>
+      </TableCell>
 
       {/* Created column */}
-      <td className="px-3 py-2 text-muted-foreground">
+      <TableCell className="text-muted-foreground">
         {!isNew &&
           new Date(label.createdAt).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",
           })}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }
