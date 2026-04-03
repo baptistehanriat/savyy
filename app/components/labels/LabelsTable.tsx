@@ -13,6 +13,7 @@ import { ArrowUp, ArrowDown, Plus } from "lucide-react"
 import { labelsStore, addLabel, updateLabel } from "~/store/labels"
 import { Button } from "~/components/ui/button"
 import { LabelRow } from "./LabelRow"
+import { useLabelsKeyboard } from "~/lib/use-labels-keyboard"
 import type { Label } from "~/store/labels"
 
 const columnHelper = createColumnHelper<Label>()
@@ -51,6 +52,7 @@ export function LabelsTable() {
   const [focusedRowIndex, setFocusedRowIndex] = useState<number | null>(null)
   const [editingRowId, setEditingRowId] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
   const table = useReactTable({
     data: labels,
@@ -61,6 +63,21 @@ export function LabelsTable() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getRowId: (row) => row.id,
+  })
+
+  const rowIds = table.getRowModel().rows.map((row) => row.id)
+
+  useLabelsKeyboard({
+    rowCount: table.getRowModel().rows.length,
+    focusedRowIndex,
+    setFocusedRowIndex,
+    editingRowId,
+    rowIds,
+    rowSelection,
+    setRowSelection,
+    onEditStart: (rowId) => setEditingRowId(rowId),
+    isCommandPaletteOpen,
+    setIsCommandPaletteOpen,
   })
 
   return (
