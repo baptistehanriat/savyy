@@ -1,11 +1,11 @@
-import { useRef, useState, useCallback, useEffect } from "react"
-import { cn } from "~/lib/utils"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Checkbox } from "~/components/ui/checkbox"
 import { TableCell, TableRow } from "~/components/ui/table"
-import { LabelNameCell } from "./label-name-cell"
-import { LabelColorCell } from "./label-color-cell"
-import { DEFAULT_LABEL_COLOR } from "~/lib/label-colors"
+import { cn } from "~/lib/utils"
 import type { Label } from "~/store/labels"
+import { LabelColorCell } from "./label-color-cell"
+import { DEFAULT_LABEL_COLOR } from "./label-colors"
+import { LabelNameCell } from "./label-name-cell"
 
 interface LabelRowProps {
   label: Label
@@ -92,27 +92,24 @@ export function LabelRow({
 
   return (
     <TableRow
-      className={cn(
-        "group",
-        isFocused && "bg-blue-500",
-        isSelected && "bg-accent hover:bg-accent",
-      )}
+      className={cn("group", isFocused && "bg-blue-500", isSelected && "bg-accent hover:bg-accent")}
       onClick={onFocus}
       onFocus={handleRowFocus}
       onBlur={handleRowBlur}
     >
-      {/* Name column: checkbox + color dot + name */}
+      {/* Select column */}
+      <TableCell>
+        <Checkbox
+          className={cn("transition-opacity", !isSelected && "opacity-0 group-hover:opacity-100")}
+          checked={isSelected}
+          onCheckedChange={onToggleSelected}
+          onClick={event => event.stopPropagation()}
+        />
+      </TableCell>
+
+      {/* Name column: color dot + name */}
       <TableCell>
         <div className="flex items-center gap-2">
-          <Checkbox
-            className={cn(
-              "transition-opacity",
-              !isSelected && "opacity-0 group-hover:opacity-100",
-            )}
-            checked={isSelected}
-            onCheckedChange={onToggleSelected}
-            onClick={(event) => event.stopPropagation()}
-          />
           <LabelColorCell
             ref={colorButtonRef}
             color={draftColor}

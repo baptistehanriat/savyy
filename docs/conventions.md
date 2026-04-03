@@ -465,6 +465,26 @@ export function bulkAddLabel(ids: string[], labelId: string) {
 
 ---
 
+## Folder responsibilities
+
+### `lib/` — reusable, product-agnostic utilities
+`lib/` is for code you could copy-paste into a completely different project and use without modification. No product concepts, no store imports, no feature-specific logic.
+
+```ts
+// ✅ lib/ — works in any React project
+app/lib/use-keyboard-shortcut.ts
+app/lib/utils.ts
+
+// ❌ lib/ — tied to this product, belongs in the feature folder
+app/lib/label-colors.ts       // → app/components/labels/
+app/lib/use-labels-keyboard.ts // → app/components/labels/
+```
+
+### `components/[feature]/` — feature-specific code
+Everything tied to a specific feature (constants, hooks, helpers, components) lives together in the feature folder. If it references product concepts (labels, transactions, accounts), it belongs here, not in `lib/`.
+
+---
+
 ## File Imports
 
 Use path aliases everywhere. Never use relative `../../../`.

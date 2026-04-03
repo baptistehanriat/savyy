@@ -1,15 +1,7 @@
-import { useState } from "react"
-import { X, Command as CommandIcon, Trash2, Tag } from "lucide-react"
+import { Command as CommandIcon, Tag, Trash2, X } from "lucide-react"
+import { Command, CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "~/components/ui/command"
 import { cn } from "~/lib/utils"
 import { deleteLabel } from "~/store/labels"
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "~/components/ui/command"
 
 interface LabelsActionBarProps {
   selectedCount: number
@@ -27,7 +19,7 @@ export function LabelsActionBar({
   onClearSelection,
 }: LabelsActionBarProps) {
   function handleDelete() {
-    selectedIds.forEach((id) => deleteLabel(id))
+    selectedIds.forEach(id => deleteLabel(id))
     onClearSelection()
     onSetCommandPaletteOpen(false)
   }
@@ -39,16 +31,12 @@ export function LabelsActionBar({
           "fixed bottom-6 left-1/2 -translate-x-1/2",
           "flex items-center gap-1 rounded-full",
           "border bg-background px-3 py-1.5 shadow-lg",
-          "text-sm",
+          "text-sm"
         )}
       >
         <span className="pr-1 font-medium">{selectedCount} selected</span>
 
-        <button
-          title="Clear selected (Esc)"
-          className="rounded-full p-1 hover:bg-muted"
-          onClick={onClearSelection}
-        >
+        <button title="Clear selected (Esc)" className="rounded-full p-1 hover:bg-muted" onClick={onClearSelection}>
           <X className="size-3.5" />
         </button>
 
@@ -76,10 +64,7 @@ export function LabelsActionBar({
           <CommandInput placeholder="Type a command or search..." />
           <CommandList>
             <CommandEmpty>No commands found.</CommandEmpty>
-            <CommandItem
-              className="text-destructive data-selected:text-destructive"
-              onSelect={handleDelete}
-            >
+            <CommandItem className="text-destructive data-selected:text-destructive" onSelect={handleDelete}>
               <Trash2 className="size-4" />
               Delete label{selectedCount === 1 ? "" : "s"}
             </CommandItem>

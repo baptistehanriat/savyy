@@ -1,58 +1,23 @@
+import { useValue } from "@legendapp/state/react"
 import {
-  useReactTable,
+  flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  flexRender,
-  createColumnHelper,
-  type SortingState,
+  useReactTable,
   type RowSelectionState,
+  type SortingState,
 } from "@tanstack/react-table"
-import { useState, useEffect, useMemo } from "react"
-import { useValue } from "@legendapp/state/react"
-import { ArrowUp, ArrowDown, Plus } from "lucide-react"
-import { labelsStore, addLabel, updateLabel } from "~/store/labels"
+import { Plus } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "~/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table"
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "~/components/ui/table"
+import type { Label } from "~/store/labels"
+import { addLabel, labelsStore, updateLabel } from "~/store/labels"
+import { DEFAULT_LABEL_COLOR } from "./label-colors"
+import { labelsTableColumns } from "./labels-table-columns"
 import { LabelRow } from "./label-row"
 import { LabelsActionBar } from "./labels-action-bar"
-import { useLabelsKeyboard } from "~/lib/use-labels-keyboard"
-import { DEFAULT_LABEL_COLOR } from "~/lib/label-colors"
-import type { Label } from "~/store/labels"
-
-const columnHelper = createColumnHelper<Label>()
-
-const columns = [
-  columnHelper.accessor("name", {
-    header: ({ column }) => (
-      <button
-        className="flex items-center gap-1 text-left font-medium"
-        onClick={() => column.toggleSorting()}
-      >
-        Name
-        {column.getIsSorted() === "asc" && <ArrowUp className="size-3" />}
-        {column.getIsSorted() === "desc" && <ArrowDown className="size-3" />}
-      </button>
-    ),
-  }),
-  columnHelper.accessor("createdAt", {
-    header: ({ column }) => (
-      <button
-        className="flex items-center gap-1 text-left font-medium"
-        onClick={() => column.toggleSorting()}
-      >
-        Created
-        {column.getIsSorted() === "asc" && <ArrowUp className="size-3" />}
-        {column.getIsSorted() === "desc" && <ArrowDown className="size-3" />}
-      </button>
-    ),
-  }),
-]
+import { useLabelsKeyboard } from "./use-labels-keyboard"
 
 const SENTINEL_LABEL: Label = {
   id: "new",
@@ -70,10 +35,7 @@ export function LabelsTable() {
   const [isCreating, setIsCreating] = useState(false)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
-  const tableData = useMemo(
-    () => (isCreating ? [SENTINEL_LABEL, ...labels] : labels),
-    [isCreating, labels]
-  )
+  const tableData = useMemo(() => (isCreating ? [SENTINEL_LABEL, ...labels] : labels), [isCreating, labels])
 
   // Auto-start editing the sentinel row when isCreating becomes true
   useEffect(() => {
@@ -85,16 +47,16 @@ export function LabelsTable() {
 
   const table = useReactTable({
     data: tableData,
-    columns,
+    columns: labelsTableColumns,
     state: { rowSelection, sorting },
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getRowId: (row) => row.id,
+    getRowId: row => row.id,
   })
 
-  const rowIds = table.getRowModel().rows.map((row) => row.id)
+  const rowIds = table.getRowModel().rows.map(row => row.id)
   const selectedIds = Object.keys(rowSelection)
 
   useLabelsKeyboard({
@@ -105,7 +67,7 @@ export function LabelsTable() {
     rowIds,
     rowSelection,
     setRowSelection,
-    onEditStart: (rowId) => setEditingRowId(rowId),
+    onEditStart: rowId => setEditingRowId(rowId),
     isCommandPaletteOpen,
     setIsCommandPaletteOpen,
   })
@@ -128,13 +90,10 @@ export function LabelsTable() {
 
       <Table>
         <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
+          {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className="text-muted-foreground font-normal"
-                >
+              {headerGroup.headers.map(header => (
+                <TableHead key={header.id} className="text-muted-foreground font-normal">
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
               ))}
@@ -144,7 +103,7 @@ export function LabelsTable() {
         <TableBody>
           {table.getRowModel().rows.length === 0 && !isCreating ? (
             <TableRow>
-              <td colSpan={2} className="px-3 py-8 text-center text-muted-foreground">
+              <td colSpan={3} className="px-3 py-8 text-center text-muted-foreground">
                 No labels yet.
               </td>
             </TableRow>
