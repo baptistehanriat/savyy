@@ -246,36 +246,6 @@ Exception: native HTML attributes (`disabled`, `readOnly`) — you can't rename 
 ### No abbreviations
 Spell out every identifier in full. See [Principles](#principles) for examples.
 
-### Observable naming
-Observables always end with `$` — this makes them instantly recognizable in any context and avoids collisions with plain values.
-
-```ts
-const transactions$ = observable([])    // ✅ observable
-const transactions = transactions$.get() // ✅ plain array
-```
-
----
-
-## TypeScript
-
-- **strict mode** always on
-- No `any` — use `unknown` and narrow
-- No type assertions (`as Foo`) unless provably safe
-- Prefer `interface` for object shapes, `type` for unions/aliases
-- Export types from `~/types/index.ts`, not scattered across files
-- Co-locate component prop types with the component (not in `types/`)
-
-```ts
-// ✅
-interface TransactionRowProps {
-  transaction: Transaction
-  onDelete: (id: string) => void
-}
-
-// ❌
-const x = thing as Transaction
-```
-
 ### Avoid generic variable names
 Name variables after what they actually hold. Generic names force the reader to trace back to understand the value.
 
@@ -292,6 +262,35 @@ const item = ...
 const temp = ...
 const value = ...
 ```
+
+### Observable naming
+Observables always end with `$` — this makes them instantly recognizable in any context and avoids collisions with plain values.
+
+```ts
+const transactions$ = observable([])    // ✅ observable
+const transactions = transactions$.get() // ✅ plain array
+```
+---
+
+## TypeScript
+
+- **strict mode** always on
+- No `any` — use `unknown` and narrow
+- No type assertions (`as Foo`) unless provably safe
+- Prefer `interface` for object shapes, `type` for unions/aliases
+
+```ts
+// ✅
+interface TransactionRowProps {
+  transaction: Transaction
+  onDelete: (id: string) => void
+}
+
+// ❌
+const x = thing as Transaction
+```
+
+
 
 ### Boolean function parameters
 Never pass a raw boolean argument — it's unreadable at the call site. Use a named options object instead.
