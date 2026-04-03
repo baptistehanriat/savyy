@@ -2,8 +2,8 @@ import { useRef, useState, useCallback, useEffect } from "react"
 import { cn } from "~/lib/utils"
 import { Checkbox } from "~/components/ui/checkbox"
 import { TableCell, TableRow } from "~/components/ui/table"
-import { LabelNameCell } from "./LabelNameCell"
-import { LabelColorCell } from "./LabelColorCell"
+import { LabelNameCell } from "./label-name-cell"
+import { LabelColorCell } from "./label-color-cell"
 import { DEFAULT_LABEL_COLOR } from "~/lib/label-colors"
 import type { Label } from "~/store/labels"
 
@@ -94,7 +94,7 @@ export function LabelRow({
     <TableRow
       className={cn(
         "group",
-        isFocused && "ring-1 ring-inset ring-ring",
+        isFocused && "bg-blue-500",
         isSelected && "bg-accent hover:bg-accent",
       )}
       onClick={onFocus}

@@ -19,8 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table"
-import { LabelRow } from "./LabelRow"
-import { LabelsActionBar } from "./LabelsActionBar"
+import { LabelRow } from "./label-row"
+import { LabelsActionBar } from "./labels-action-bar"
 import { useLabelsKeyboard } from "~/lib/use-labels-keyboard"
 import { DEFAULT_LABEL_COLOR } from "~/lib/label-colors"
 import type { Label } from "~/store/labels"

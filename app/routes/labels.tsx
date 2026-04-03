@@ -1,4 +1,4 @@
-import { LabelsTable } from "~/components/labels/LabelsTable"
+import { LabelsTable } from "~/components/labels/labels-table"
 
 export function meta() {
   return [{ title: "Labels" }]
