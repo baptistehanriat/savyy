@@ -10,11 +10,39 @@ import {
 import { useState } from "react"
 import { useValue } from "@legendapp/state/react"
 import { ArrowUp, ArrowDown, Plus } from "lucide-react"
-import { labelsStore } from "~/store/labels"
+import { labelsStore, addLabel, updateLabel } from "~/store/labels"
 import { Button } from "~/components/ui/button"
+import { LabelRow } from "./LabelRow"
 import type { Label } from "~/store/labels"
 
 const columnHelper = createColumnHelper<Label>()
+
+const columns = [
+  columnHelper.accessor("name", {
+    header: ({ column }) => (
+      <button
+        className="flex items-center gap-1 text-left font-medium"
+        onClick={() => column.toggleSorting()}
+      >
+        Name
+        {column.getIsSorted() === "asc" && <ArrowUp className="size-3" />}
+        {column.getIsSorted() === "desc" && <ArrowDown className="size-3" />}
+      </button>
+    ),
+  }),
+  columnHelper.accessor("createdAt", {
+    header: ({ column }) => (
+      <button
+        className="flex items-center gap-1 text-left font-medium"
+        onClick={() => column.toggleSorting()}
+      >
+        Created
+        {column.getIsSorted() === "asc" && <ArrowUp className="size-3" />}
+        {column.getIsSorted() === "desc" && <ArrowDown className="size-3" />}
+      </button>
+    ),
+  }),
+]
 
 export function LabelsTable() {
   const labels = useValue(labelsStore.items)
@@ -23,33 +51,6 @@ export function LabelsTable() {
   const [focusedRowIndex, setFocusedRowIndex] = useState<number | null>(null)
   const [editingRowId, setEditingRowId] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(false)
-
-  const columns = [
-    columnHelper.accessor("name", {
-      header: ({ column }) => (
-        <button
-          className="flex items-center gap-1 text-left font-medium"
-          onClick={() => column.toggleSorting()}
-        >
-          Name
-          {column.getIsSorted() === "asc" && <ArrowUp className="size-3" />}
-          {column.getIsSorted() === "desc" && <ArrowDown className="size-3" />}
-        </button>
-      ),
-    }),
-    columnHelper.accessor("createdAt", {
-      header: ({ column }) => (
-        <button
-          className="flex items-center gap-1 text-left font-medium"
-          onClick={() => column.toggleSorting()}
-        >
-          Created
-          {column.getIsSorted() === "asc" && <ArrowUp className="size-3" />}
-          {column.getIsSorted() === "desc" && <ArrowDown className="size-3" />}
-        </button>
-      ),
-    }),
-  ]
 
   const table = useReactTable({
     data: labels,
@@ -66,7 +67,13 @@ export function LabelsTable() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Labels</h1>
-        <Button size="sm" onClick={() => setIsCreating(true)}>
+        <Button
+          size="sm"
+          onClick={() => {
+            if (!isCreating) setIsCreating(true)
+            else setFocusedRowIndex(0)
+          }}
+        >
           <Plus className="size-4" />
           New label
         </Button>
@@ -88,7 +95,7 @@ export function LabelsTable() {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.length === 0 ? (
+          {table.getRowModel().rows.length === 0 && !isCreating ? (
             <tr>
               <td colSpan={2} className="px-3 py-8 text-center text-muted-foreground">
                 No labels yet.
@@ -96,21 +103,22 @@ export function LabelsTable() {
             </tr>
           ) : (
             table.getRowModel().rows.map((row, index) => (
-              <tr
+              <LabelRow
                 key={row.id}
-                className={[
-                  "group border-b transition-colors hover:bg-muted/50",
-                  focusedRowIndex === index ? "ring-1 ring-inset ring-ring" : "",
-                  row.getIsSelected() ? "bg-accent" : "",
-                ].join(" ")}
-                onClick={() => setFocusedRowIndex(index)}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-3 py-2">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
+                label={row.original}
+                isSelected={row.getIsSelected()}
+                isFocused={focusedRowIndex === index}
+                isEditing={editingRowId === row.original.id}
+                isNew={row.original.id === "new"}
+                onToggleSelected={() => row.toggleSelected()}
+                onFocus={() => setFocusedRowIndex(index)}
+                onEditStart={() => setEditingRowId(row.original.id)}
+                onEditCommit={(name, color) => {
+                  updateLabel(row.original.id, { name, color })
+                  setEditingRowId(null)
+                }}
+                onEditCancel={() => setEditingRowId(null)}
+              />
             ))
           )}
         </tbody>
