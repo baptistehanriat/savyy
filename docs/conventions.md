@@ -116,7 +116,8 @@ Pick one verb family per operation and never mix them. Applies across the whole 
 | Operation | Use | Never mix with |
 |---|---|---|
 | Adding items - store/data layer | `add` | `create`, `new`, `insert` |
-| Adding items - UI layer | `New item` | `Create new item` `Add new item` |
+| Adding items - UI layer (buttons, modal titles, shortcuts) | `New [item]` | `Add new`, `Create` |
+| Adding items - UI layer (empty states) | `Create new [item]` | `Add your first`, `No items yet` |
 | Removing items — store/data layer | `delete` | `remove`, `destroy`, `drop` |
 | Removing items — UI layer | `delete` | `remove`, `destroy`, `drop` |
 | Changing items — store/data layer | `update` | `modify`, `set` (except observable `.set()`) |
