@@ -36,7 +36,7 @@ export function updateLabel(id: string, patch: Partial<Omit<Label, "id">>) {
   labelsStore.items[idx].assign(patch);
 }
 
-export function removeLabel(id: string) {
-  const items = labelsStore.items.peek();
-  labelsStore.items.set(items.filter((l) => l.id !== id));
+export function deleteLabel(id: string) {
+  const items = labelsStore.items.peek()
+  labelsStore.items.set(items.filter((label) => label.id !== id))
 }
