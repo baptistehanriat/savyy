@@ -5,6 +5,7 @@ export default [
     index("routes/home.tsx"),
     route("transactions", "routes/transactions.tsx"),
     route("labels", "routes/labels.tsx"),
+    route("settings", "routes/settings.tsx"),
   ]),
   route("login", "routes/login.tsx"),
   route("auth/callback", "routes/auth.callback.tsx"),

@@ -69,7 +69,7 @@ export default function AppLayout() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/settings")}>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut}>Sign out</DropdownMenuItem>
           </DropdownMenuContent>
