@@ -15,13 +15,10 @@ interface UseLabelsKeyboardProps {
 }
 
 function isTypingInInput(): boolean {
-  return (
-    document.activeElement instanceof HTMLInputElement ||
-    document.activeElement instanceof HTMLTextAreaElement
-  )
+  return document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement
 }
 
-export function useLabelsKeyboard({
+export function useLabelsTableShortcut({
   rowCount,
   focusedRowIndex,
   setFocusedRowIndex,
@@ -35,23 +32,19 @@ export function useLabelsKeyboard({
 }: UseLabelsKeyboardProps) {
   const isEditing = editingRowId !== null
 
-  useKeyboardShortcut("ArrowUp", (event) => {
+  useKeyboardShortcut("ArrowUp", event => {
     if (isEditing || isTypingInInput()) return
     event.preventDefault()
-    setFocusedRowIndex(
-      focusedRowIndex === null ? 0 : Math.max(0, focusedRowIndex - 1)
-    )
+    setFocusedRowIndex(focusedRowIndex === null ? 0 : Math.max(0, focusedRowIndex - 1))
   })
 
-  useKeyboardShortcut("ArrowDown", (event) => {
+  useKeyboardShortcut("ArrowDown", event => {
     if (isEditing || isTypingInInput()) return
     event.preventDefault()
-    setFocusedRowIndex(
-      focusedRowIndex === null ? 0 : Math.min(rowCount - 1, focusedRowIndex + 1)
-    )
+    setFocusedRowIndex(focusedRowIndex === null ? 0 : Math.min(rowCount - 1, focusedRowIndex + 1))
   })
 
-  useKeyboardShortcut("shift+ArrowUp", (event) => {
+  useKeyboardShortcut("shift+ArrowUp", event => {
     if (isEditing || isTypingInInput() || focusedRowIndex === null) return
     event.preventDefault()
     const newIndex = Math.max(0, focusedRowIndex - 1)
@@ -60,7 +53,7 @@ export function useLabelsKeyboard({
     setFocusedRowIndex(newIndex)
   })
 
-  useKeyboardShortcut("shift+ArrowDown", (event) => {
+  useKeyboardShortcut("shift+ArrowDown", event => {
     if (isEditing || isTypingInInput() || focusedRowIndex === null) return
     event.preventDefault()
     const newIndex = Math.min(rowCount - 1, focusedRowIndex + 1)
@@ -69,7 +62,7 @@ export function useLabelsKeyboard({
     setFocusedRowIndex(newIndex)
   })
 
-  useKeyboardShortcut("x", (event) => {
+  useKeyboardShortcut("x", event => {
     if (isEditing || isTypingInInput() || focusedRowIndex === null) return
     event.preventDefault()
     const rowId = rowIds[focusedRowIndex]
@@ -84,20 +77,20 @@ export function useLabelsKeyboard({
     setRowSelection(nextSelection)
   })
 
-  useKeyboardShortcut("Meta+a", (event) => {
+  useKeyboardShortcut("Meta+a", event => {
     if (isEditing) return
     event.preventDefault()
-    setRowSelection(Object.fromEntries(rowIds.map((id) => [id, true])))
+    setRowSelection(Object.fromEntries(rowIds.map(id => [id, true])))
   })
 
-  useKeyboardShortcut("e", (event) => {
+  useKeyboardShortcut("e", event => {
     if (isEditing || isTypingInInput() || focusedRowIndex === null) return
     event.preventDefault()
     const rowId = rowIds[focusedRowIndex]
     if (rowId) onEditStart(rowId)
   })
 
-  useKeyboardShortcut("Enter", (event) => {
+  useKeyboardShortcut("Enter", event => {
     if (isEditing || isTypingInInput() || focusedRowIndex === null) return
     event.preventDefault()
     const rowId = rowIds[focusedRowIndex]
@@ -113,7 +106,7 @@ export function useLabelsKeyboard({
     setFocusedRowIndex(null)
   })
 
-  useKeyboardShortcut("Meta+k", (event) => {
+  useKeyboardShortcut("Meta+k", event => {
     if (Object.keys(rowSelection).length === 0) return
     event.preventDefault()
     setIsCommandPaletteOpen(!isCommandPaletteOpen)

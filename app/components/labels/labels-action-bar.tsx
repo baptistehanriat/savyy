@@ -1,7 +1,7 @@
 import { Command as CommandIcon, Tag, Trash2, X } from "lucide-react"
 import { Command, CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "~/components/ui/command"
 import { cn } from "~/lib/utils"
-import { deleteLabel } from "~/store/labels"
+import { deleteLabel } from "~/stores/labels-store"
 
 interface LabelsActionBarProps {
   selectedCount: number

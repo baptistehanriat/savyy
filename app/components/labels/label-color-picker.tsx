@@ -4,37 +4,22 @@ import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover
 import { cn } from "~/lib/utils"
 import { LABEL_COLOR_PRESETS } from "./label-colors"
 
-interface LabelColorCellProps {
+interface LabelColorPickerProps {
   color: string
   isEditing: boolean
   onColorChange: (color: string) => void
   onTabFromColor?: () => void
 }
 
-export const LabelColorCell = forwardRef<HTMLButtonElement, LabelColorCellProps>(function LabelColorCell(
+export const LabelColorPicker = forwardRef<HTMLButtonElement, LabelColorPickerProps>(function LabelColorCell(
   { color, isEditing, onColorChange, onTabFromColor },
   ref
 ) {
-  if (!isEditing) {
-    return <span className="inline-block size-3 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-  }
-
   return (
     <Popover>
-      <PopoverTrigger
-        ref={ref}
-        className={cn(
-          "inline-block size-3 shrink-0 rounded-full cursor-pointer",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
-        )}
-        style={{ backgroundColor: color }}
-        onKeyDown={event => {
-          if (event.key === "Tab") {
-            event.preventDefault()
-            onTabFromColor?.()
-          }
-        }}
-      />
+      <PopoverTrigger className="flex size-3 rounded-lg items-center justify-center">
+        <span className="size-3 rounded-full" style={{ backgroundColor: color }} />
+      </PopoverTrigger>
       <PopoverContent className="w-auto p-2" side="bottom" align="start" sideOffset={6}>
         <div className="flex items-center gap-1">
           {LABEL_COLOR_PRESETS.map(preset => (
@@ -48,7 +33,6 @@ export const LabelColorCell = forwardRef<HTMLButtonElement, LabelColorCellProps>
               {preset === color && <Check className="absolute inset-0 m-auto size-3 text-white drop-shadow-sm" />}
             </button>
           ))}
-          {/* Rainbow placeholder — full picker out of scope */}
           <button
             type="button"
             disabled

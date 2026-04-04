@@ -1,93 +1,88 @@
 # Architecture
 
-## File Structure
+## Philosophy: Local-First
+
+Savyy is local-first. The browser is the primary database. Supabase is a sync target, not a dependency.
+
+- Every read hits IndexedDB or localStorage — zero network latency
+- Every write is instant and optimistic — UI never waits for a server
+- The app works fully offline — Supabase sync resumes automatically when back online
+
+---
+
+## Storage
+
+Each domain is persisted in the most appropriate local store:
+
+| Domain | Storage | Why |
+|---|---|---|
+| Labels | localStorage | Small metadata, synchronous access, needed everywhere |
+| Transactions | IndexedDB | Potentially large, async non-blocking reads/writes |
+
+Both are managed automatically by Legend State persist plugins — no manual storage code.
+
+---
+
+## Sync
+
+Legend State's `syncedSupabase` plugin sits between the local store and Supabase:
 
 ```
-app/
-├── components/
-│   ├── data-type.ts          # Shared TypeScript interfaces
-│   ├── ui/                   # shadcn/ui primitives
-│   ├── primitives/           # App-level shared components
-│   ├── transactions/         # Transaction-specific components
-│   │   ├── transactions-table.tsx
-│   │   ├── transaction-form.tsx      (todo)
-│   │   ├── import-wizard.tsx         (todo)
-│   │   └── dummy-transactions.ts
-│   └── labels/
-│       ├── labels-table.tsx
-│       ├── label-form.tsx            (todo)
-│       └── dummy-labels.ts
-├── pages/
-│   └── authenticated/
-│       ├── layout.tsx        # App shell (sidebar + outlet)
-│       ├── dashboard.tsx
-│       ├── transactions.tsx
-│       ├── labels.tsx
-│       └── settings.tsx
-├── state/
-│   └── store.ts              # Legend State global store + persistence
-├── lib/                      # Utilities (cn, date helpers, csv parser, etc.)
-├── routes.ts
-├── root.tsx
-└── app.css
-docs/
-├── product.md
-├── data-model.md
-├── tech-stack.md
-├── ux-patterns.md
-├── roadmap.md
-└── architecture.md  ← you are here
+Local store (IndexedDB / localStorage)
+    ↕  Legend State syncedSupabase plugin
+Supabase (Postgres)
+    └── Row Level Security enforces user_id = auth.uid()
 ```
 
-## State Flow
+The plugin handles:
+- Initial data fetch from Supabase on first load
+- Pushing local changes to Supabase in the background
+- Retry on failure
+- Conflict resolution
+
+---
+
+## Data Flow
 
 ```
-User action (click, keypress, form submit)
+User action
     ↓
-Component calls store mutation (e.g. store.transactions.push(...))
+Store mutation (addLabel, deleteTransaction, ...)
     ↓
-Legend State reactivity → all subscribed components re-render
+Legend State writes to local storage immediately
     ↓
-persistObservable writes to localStorage (sync, automatic)
-    ↓
-UI is always up to date, no loading states
+UI re-renders — no loading state, no waiting
+    ↓ (background, when online)
+Legend State syncs to Supabase
 ```
 
-## Component Conventions
+Reads never touch the network. Writes never wait for the network.
 
-- **Pages** (`pages/`) — route-level components, own their layout
-- **Feature components** (`components/transactions/`, `components/labels/`) — domain-specific, access store directly
-- **Primitives** (`components/primitives/`) — shared UI (no store access)
-- **shadcn/ui** (`components/ui/`) — raw primitives, never modified directly
+---
 
-## Store Access
+## Store Design
 
-Components read and write directly from `store` imported from `~/state/store`.  
-No prop drilling, no context providers for data.
-
-```ts
-import { store } from "~/state/store"
-import { useSelector } from "@legendapp/state/react"
-
-// Read (reactive)
-const transactions = useSelector(() => store.transactions.get())
-
-// Write (instant, auto-persisted)
-store.transactions.push(newTransaction)
-```
-
-## CSV Import Architecture
+Each domain store exposes:
+- A **private observable** wrapping `syncedSupabase` — owns persistence and sync
+- A **public computed** (`labels$`, `transactions$`) — maps raw DB rows to domain types
+- **Public mutations** (`addLabel`, `updateLabel`, ...) — the only way to write
 
 ```
-File input / drag-drop
-    ↓
-Raw CSV string
-    ↓
-Papa Parse → array of row objects
-    ↓
-Column mapping UI (user maps: date, amount, name, description)
-    ↓
-Transform + validate rows → Transaction[]
-    ↓
-store.transactions.push(...parsed)
+Component
+  ├── reads via  → labels$ (computed, mapped, reactive)
+  └── writes via → addLabel(...) (mutation, generates id, sets user_id)
+                        ↓
+                  private labelsStore (Legend State observable)
+                        ↓
+                  localStorage  →  Supabase
 ```
+
+Components never access the raw store or DB types directly.
+
+---
+
+## Auth
+
+Supabase handles authentication entirely (Google OAuth, session management, token refresh). The app never manages tokens manually. Sessions are persisted in localStorage by the Supabase JS client.
+
+Row Level Security on every Supabase table ensures users can only access their own data — even if the client-side auth check were bypassed, the database rejects unauthorized reads and writes.

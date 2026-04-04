@@ -3,7 +3,7 @@ import { format } from "date-fns"
 import { ArrowDown, ArrowUp } from "lucide-react"
 import { Checkbox } from "~/components/ui/checkbox"
 import { cn } from "~/lib/utils"
-import type { Label } from "~/store/labels"
+import type { Label } from "~/stores/labels-store"
 
 export const labelsTableColumns: ColumnDef<Label>[] = [
   {

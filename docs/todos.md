@@ -1,8 +1,10 @@
-- smart table: inline editing, keyboard shortcuts, selection, sorting, filtering, bulk actions, inline addition
-- app layout
-- cleanup docs
-  - write proper stack file with path to fetch llm.txt files when library has it
-  - review and simplify conventions files
-  - add map files
-  - add claude.md file
+# Todos
 
+## Refactor
+
+- **Labels inline editing** — the current structure is messy and buggy (stale closures, blur/focus timing hacks, draft state scattered across `LabelRow`, `LabelColorPicker`, `LabelNameCell`). Needs a clean rethink.
+- parsing/conversion of the amount. It's a text, then a float, then an integer. Check the full flow and make sur it's robust and consistent.
+- indexedDB vs localStorage. currently only localStorage correclty works. indexedDB is not working.
+- security question: is it bad that the user_id leaks from the response of the transactions and labels endpoints?
+- security question: is it bad that the index_DB is accessible from the browser console application > indexDB?
+- when transacation is added it should be at the top of the table (so basically if they have the same date, we could look at the createdAt field and sort by that)

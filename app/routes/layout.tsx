@@ -1,5 +1,7 @@
-import { NavLink, Outlet } from "react-router"
+import { NavLink, Outlet, useNavigate } from "react-router"
+import { useEffect } from "react"
 import { Tags, ArrowLeftRight, MoreHorizontal, Coins } from "lucide-react"
+import { useNavigateShortcuts } from "~/components/shortcuts/use-navigate-shortcuts"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,6 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
+import { supabaseClient } from "~/database/supabase-client"
+import { configureSyncedSupabase } from "@legendapp/state/sync-plugins/supabase"
+import { generateId } from "~/lib/utils"
 
 const navItems = [
   { to: "/transactions", label: "Transactions", icon: ArrowLeftRight },
@@ -14,6 +19,19 @@ const navItems = [
 ]
 
 export default function AppLayout() {
+  const navigate = useNavigate()
+  useNavigateShortcuts()
+
+  useEffect(() => {
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+      if (!session) navigate("/login", { replace: true })
+    })
+  }, [navigate])
+
+  async function signOut() {
+    await supabaseClient.auth.signOut()
+    navigate("/login", { replace: true })
+  }
   return (
     <div className="relative min-h-screen bg-background">
       <div className="fixed top-4 left-4 z-50">
@@ -53,7 +71,7 @@ export default function AppLayout() {
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Sign out</DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>Sign out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

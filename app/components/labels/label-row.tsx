@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Checkbox } from "~/components/ui/checkbox"
 import { TableCell, TableRow } from "~/components/ui/table"
 import { cn } from "~/lib/utils"
-import type { Label } from "~/store/labels"
-import { LabelColorCell } from "./label-color-cell"
+import type { Label } from "~/stores/labels-store"
+import { LabelColorPicker } from "./label-color-picker"
 import { DEFAULT_LABEL_COLOR } from "./label-colors"
 import { LabelNameCell } from "./label-name-cell"
 
@@ -55,6 +55,11 @@ export function LabelRow({
     onEditCommit(draftName.trim(), draftColor)
   }
 
+  function handleColorChange(color: string) {
+    setDraftColor(color)
+    onEditCommit(draftName.trim(), color)
+  }
+
   function handleCancel() {
     if (commitTimeoutRef.current) {
       clearTimeout(commitTimeoutRef.current)
@@ -97,7 +102,6 @@ export function LabelRow({
       onFocus={handleRowFocus}
       onBlur={handleRowBlur}
     >
-      {/* Select column */}
       <TableCell>
         <Checkbox
           className={cn("transition-opacity", !isSelected && "opacity-0 group-hover:opacity-100")}
@@ -107,14 +111,13 @@ export function LabelRow({
         />
       </TableCell>
 
-      {/* Name column: color dot + name */}
       <TableCell>
         <div className="flex items-center gap-2">
-          <LabelColorCell
+          <LabelColorPicker
             ref={colorButtonRef}
             color={draftColor}
             isEditing={isEditing}
-            onColorChange={setDraftColor}
+            onColorChange={handleColorChange}
             onTabFromColor={handleTabFromColor}
           />
           <LabelNameCell
@@ -130,7 +133,6 @@ export function LabelRow({
         </div>
       </TableCell>
 
-      {/* Created column */}
       <TableCell className="text-muted-foreground">
         {!isNew &&
           new Date(label.createdAt).toLocaleDateString("en-US", {

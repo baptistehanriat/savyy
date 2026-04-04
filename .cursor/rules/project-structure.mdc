@@ -1,0 +1,19 @@
+---
+description: File placement conventions for the savyy project
+alwaysApply: true
+---
+
+# Project Structure Conventions
+
+## `app/lib/` — generic, reusable utilities only
+
+Only place **framework-agnostic, project-unaware** utilities here. These should be portable to any project.
+
+✅ OK: `use-keyboard-shortcut.ts`, `use-is-mobile.ts`, `utils.ts`  
+❌ NOT OK: anything that imports app routes, store, or domain types
+
+## `app/components/` — everything app-specific
+
+All hooks and logic that reference app routes, stores, or domain concepts belong here, even if they have no JSX.
+
+✅ OK: `use-navigate-shortcuts.ts`, `use-labels-shortcut.ts`

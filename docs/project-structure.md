@@ -8,7 +8,6 @@ savyy/
 │   ├── app.css                     # Global styles, CSS variables, theme tokens
 │   │
 │   ├── store/                      # Legend State — single source of truth
-│   │   ├── index.ts                # Re-exports everything; initializes persistence
 │   │   ├── transactions.ts         # transactions$ observable + mutations
 │   │   ├── labels.ts               # labels$ observable + mutations
 │   │   └── settings.ts             # settings$ observable + mutations

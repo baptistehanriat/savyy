@@ -9,15 +9,15 @@ import {
 } from "@tanstack/react-table"
 import { Plus } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import { useLabelsTableShortcut } from "~/components/shortcuts/use-labels-table-shortcut"
 import { Button } from "~/components/ui/button"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "~/components/ui/table"
-import type { Label } from "~/store/labels"
-import { addLabel, labelsStore, updateLabel } from "~/store/labels"
+import type { Label } from "~/stores/labels-store"
+import { addLabel, labels$, updateLabel } from "~/stores/labels-store"
 import { DEFAULT_LABEL_COLOR } from "./label-colors"
-import { labelsTableColumns } from "./labels-table-columns"
 import { LabelRow } from "./label-row"
 import { LabelsActionBar } from "./labels-action-bar"
-import { useLabelsKeyboard } from "./use-labels-keyboard"
+import { labelsTableColumns } from "./labels-table-columns"
 
 const SENTINEL_LABEL: Label = {
   id: "new",
@@ -27,7 +27,7 @@ const SENTINEL_LABEL: Label = {
 }
 
 export function LabelsTable() {
-  const labels = useValue(labelsStore.items)
+  const labels = useValue(labels$)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [sorting, setSorting] = useState<SortingState>([])
   const [focusedRowIndex, setFocusedRowIndex] = useState<number | null>(null)
@@ -59,7 +59,7 @@ export function LabelsTable() {
   const rowIds = table.getRowModel().rows.map(row => row.id)
   const selectedIds = Object.keys(rowSelection)
 
-  useLabelsKeyboard({
+  useLabelsTableShortcut({
     rowCount: table.getRowModel().rows.length,
     focusedRowIndex,
     setFocusedRowIndex,
